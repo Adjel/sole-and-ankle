@@ -1,9 +1,23 @@
-import React from 'react';
-import styled from 'styled-components/macro';
+import React from "react";
+import styled from "styled-components/macro";
 
-import { COLORS, WEIGHTS } from '../../constants';
-import { formatPrice, pluralize, isNewShoe } from '../../utils';
-import Spacer from '../Spacer';
+import { COLORS, WEIGHTS } from "../../constants";
+import { formatPrice, pluralize, isNewShoe } from "../../utils";
+import Spacer from "../Spacer";
+
+const STYLES = {
+  "on-sale": {
+    backgrounColor: `${COLORS.primary}`,
+  },
+
+  "new-release": {
+    backgrounColor: `${COLORS.secondary}`,
+  },
+
+  default: {
+    backgrounColor: undefined,
+  },
+};
 
 const ShoeCard = ({
   slug,
@@ -26,10 +40,12 @@ const ShoeCard = ({
   // will triumph and be the variant used.
   // prettier-ignore
   const variant = typeof salePrice === 'number'
-    ? 'on-sale'
+    ? "on-sale"
     : isNewShoe(releaseDate)
-      ? 'new-release'
+      ? "new-release"
       : 'default'
+
+  const variantStyles = STYLES[variant];
 
   return (
     <Link href={`/shoe/${slug}`}>
@@ -37,13 +53,25 @@ const ShoeCard = ({
         <ImageWrapper>
           <Image alt="" src={imageSrc} />
         </ImageWrapper>
+        <Tag
+          style={{
+            "--backgrounColor": variantStyles.backgrounColor,
+          }}
+        >
+          {variant === "on-sale"
+            ? "Sale"
+            : variant === "new-release"
+            ? "Just Released!"
+            : undefined}
+        </Tag>
         <Spacer size={12} />
         <Row>
           <Name>{name}</Name>
           <Price>{formatPrice(price)}</Price>
         </Row>
         <Row>
-          <ColorInfo>{pluralize('Color', numOfColors)}</ColorInfo>
+          <ColorInfo>{pluralize("Color", numOfColors)}</ColorInfo>
+          {salePrice && <SalePrice>{formatPrice(salePrice)}</SalePrice>}
         </Row>
       </Wrapper>
     </Link>
@@ -53,17 +81,41 @@ const ShoeCard = ({
 const Link = styled.a`
   text-decoration: none;
   color: inherit;
+  display: flex;
+  flex-direction: column;
+  flex: 28%;
 `;
 
-const Wrapper = styled.article``;
+const Wrapper = styled.article`
+  position: relative;
+`;
+
+const Tag = styled.div`
+  position: absolute;
+  top: 12px;
+  right: -4px;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 10px;
+  border-radius: 2px;
+  background-color: var(--backgrounColor);
+  color: ${COLORS.white};
+  font-size: ${14 / 16}rem;
+  font-weight: 700;
+`;
 
 const ImageWrapper = styled.div`
   position: relative;
 `;
 
-const Image = styled.img``;
+const Image = styled.img`
+  width: 100%;
+  border-radius: 16px 16px 4px 4px;
+`;
 
 const Row = styled.div`
+  display: flex;
+  justify-content: space-between;
   font-size: 1rem;
 `;
 
